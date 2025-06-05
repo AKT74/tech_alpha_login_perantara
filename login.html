@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Halaman Login</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f2f2f2;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding-top: 50px;
+    }
+
+    .login-container {
+      background: white;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      width: 300px;
+      margin-bottom: 30px;
+    }
+
+    h2 {
+      text-align: center;
+    }
+
+    input[type="text"],
+    input[type="password"] {
+      width: 100%;
+      padding: 12px;
+      margin: 8px 0;
+      box-sizing: border-box;
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      background-color: #4CAF50;
+      border: none;
+      color: white;
+      font-size: 16px;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+
+    .error {
+      color: red;
+      text-align: center;
+      font-size: 14px;
+    }
+
+    .akun-container {
+      background: #fff;
+      border-radius: 10px;
+      padding: 20px;
+      width: 300px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+
+    .akun-container h3 {
+      text-align: center;
+      margin-bottom: 10px;
+    }
+
+    .akun-container ul {
+      list-style: none;
+      padding-left: 0;
+    }
+
+    .akun-container li {
+      margin-bottom: 6px;
+      background: #f9f9f9;
+      padding: 8px;
+      border-radius: 5px;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+  <div class="login-container">
+    <h2>Login</h2>
+    <input type="text" id="username" placeholder="Username" />
+    <input type="password" id="password" placeholder="Password" />
+    <button onclick="login()">Login</button>
+    <div class="error" id="errorMsg"></div>
+  </div>
+
+  <div class="akun-container">
+    <h3>Akun yang Bisa Digunakan</h3>
+    <ul>
+      <li><strong>Username:</strong> admin <br> <strong>Password:</strong> admin123</li>
+      <li><strong>Username:</strong> user <br> <strong>Password:</strong> user123</li>
+    </ul>
+  </div>
+
+  <script>
+    const akunValid = [
+      { username: "admin", password: "admin123" },
+      { username: "user", password: "user123" }
+    ];
+
+    function login() {
+      const username = document.getElementById("username").value;
+      const password = document.getElementById("password").value;
+      const errorMsg = document.getElementById("errorMsg");
+
+      const akunDitemukan = akunValid.find(
+        akun => akun.username === username && akun.password === password
+      );
+
+      if (akunDitemukan) {
+        sessionStorage.setItem("loggedInUser", username);
+        window.location.href = "https://tech-alpha-1218.netlify.app/";
+      } else {
+        errorMsg.textContent = "Username atau password salah!";
+      }
+    }
+  </script>
+</body>
+</html>
