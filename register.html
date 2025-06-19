@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Halaman Register</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f2f2f2;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding-top: 50px;
+    }
+
+    .register-container {
+      background: white;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      width: 300px;
+    }
+
+    h2 {
+      text-align: center;
+    }
+
+    input[type="text"],
+    input[type="password"] {
+      width: 100%;
+      padding: 12px;
+      margin: 8px 0;
+      box-sizing: border-box;
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      background-color: #2196F3;
+      border: none;
+      color: white;
+      font-size: 16px;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+
+    .error, .success {
+      text-align: center;
+      font-size: 14px;
+      margin-top: 10px;
+    }
+
+    .error {
+      color: red;
+    }
+
+    .success {
+      color: green;
+    }
+
+    .link {
+      text-align: center;
+      margin-top: 10px;
+    }
+
+    .link a {
+      color: #2196F3;
+      text-decoration: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="register-container">
+    <h2>Register</h2>
+    <input type="text" id="newUsername" placeholder="Username Baru" />
+    <input type="password" id="newPassword" placeholder="Password Baru" />
+    <button onclick="register()">Register</button>
+    <div id="message"></div>
+    <div class="link">
+      Sudah punya akun? <a href="index.html">Login</a>
+    </div>
+  </div>
+
+  <!-- CDN Supabase -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+  <script>
+    const SUPABASE_URL = "https://ldbkqxmruebnrkyhyppe.supabase.co";
+    const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxkYmtxeG1ydWVibnJreWh5cHBlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTAzMTcyNDgsImV4cCI6MjA2NTg5MzI0OH0.hV5mn5WdR_DOsGyeyYFtI10QpwTX2qx7JsZgXYCVxBM"; // Jangan bocorkan ini di produksi
+
+    const { createClient } = window.supabase;
+    const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    async function register() {
+      const username = document.getElementById("newUsername").value.trim();
+      const password = document.getElementById("newPassword").value.trim();
+      const messageDiv = document.getElementById("message");
+
+      messageDiv.textContent = "";
+      messageDiv.className = "";
+
+      if (!username || !password) {
+        messageDiv.textContent = "Username dan password harus diisi!";
+        messageDiv.className = "error";
+        return;
+      }
+
+      if (password.length < 6) {
+        messageDiv.textContent = "Password minimal 6 karakter.";
+        messageDiv.className = "error";
+        return;
+      }
+
+      const { data: existingUsers, error: checkError } = await supabase
+        .from("users")
+        .select("username")
+        .eq("username", username);
+
+      if (checkError) {
+        messageDiv.textContent = "Gagal memeriksa username: " + checkError.message;
+        messageDiv.className = "error";
+        return;
+      }
+
+      if (existingUsers.length > 0) {
+        messageDiv.textContent = "Username sudah digunakan.";
+        messageDiv.className = "error";
+        return;
+      }
+
+      const { error } = await supabase
+        .from("users")
+        .insert([{ username, password }]);
+
+      if (error) {
+        messageDiv.textContent = "Gagal registrasi: " + error.message;
+        messageDiv.className = "error";
+      } else {
+        messageDiv.textContent = "Registrasi berhasil! Silakan login.";
+        messageDiv.className = "success";
+        document.getElementById("newUsername").value = "";
+        document.getElementById("newPassword").value = "";
+      }
+    }
+  </script>
+</body>
+</html>

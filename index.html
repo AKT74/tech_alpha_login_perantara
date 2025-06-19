@@ -4,6 +4,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Halaman Login</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -50,6 +52,7 @@
       color: red;
       text-align: center;
       font-size: 14px;
+      margin-top: 10px;
     }
 
     .akun-container {
@@ -77,6 +80,16 @@
       border-radius: 5px;
       font-size: 14px;
     }
+
+    .link {
+      text-align: center;
+      margin-top: 10px;
+    }
+
+    .link a {
+      color: #2196F3;
+      text-decoration: none;
+    }
   </style>
 </head>
 <body>
@@ -86,10 +99,13 @@
     <input type="password" id="password" placeholder="Password" />
     <button onclick="login()">Login</button>
     <div class="error" id="errorMsg"></div>
+    <div class="link">
+      Belum punya akun? <a href="register.html">Register</a>
+    </div>
   </div>
 
   <div class="akun-container">
-    <h3>Akun yang Bisa Digunakan</h3>
+    <h3>Contoh Akun</h3>
     <ul>
       <li><strong>Username:</strong> admin <br> <strong>Password:</strong> admin123</li>
       <li><strong>Username:</strong> user <br> <strong>Password:</strong> user123</li>
@@ -97,25 +113,40 @@
   </div>
 
   <script>
-    const akunValid = [
-      { username: "admin", password: "admin123" },
-      { username: "user", password: "user123" }
-    ];
+    const SUPABASE_URL = "https://ldbkqxmruebnrkyhyppe.supabase.co";
+    const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxkYmtxeG1ydWVibnJreWh5cHBlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTAzMTcyNDgsImV4cCI6MjA2NTg5MzI0OH0.hV5mn5WdR_DOsGyeyYFtI10QpwTX2qx7JsZgXYCVxBM"; // ganti dengan real key kamu
+    const { createClient } = window.supabase;
+    const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
-    function login() {
-      const username = document.getElementById("username").value;
-      const password = document.getElementById("password").value;
+    async function login() {
+      const username = document.getElementById("username").value.trim();
+      const password = document.getElementById("password").value.trim();
       const errorMsg = document.getElementById("errorMsg");
 
-      const akunDitemukan = akunValid.find(
-        akun => akun.username === username && akun.password === password
-      );
+      errorMsg.textContent = "";
 
-      if (akunDitemukan) {
+      if (!username || !password) {
+        errorMsg.textContent = "Username dan password harus diisi!";
+        return;
+      }
+
+      // Cek apakah akun cocok di Supabase
+      const { data, error } = await supabase
+        .from("users")
+        .select("*")
+        .eq("username", username)
+        .eq("password", password); // ⚠ masih plain text, hash jika di produksi
+
+      if (error) {
+        errorMsg.textContent = "Terjadi kesalahan: " + error.message;
+        return;
+      }
+
+      if (!data || data.length === 0) {
+        errorMsg.textContent = "Username atau password salah!";
+      } else {
         sessionStorage.setItem("loggedInUser", username);
         window.location.href = "https://tech-alpha-1218.netlify.app/";
-      } else {
-        errorMsg.textContent = "Username atau password salah!";
       }
     }
   </script>
